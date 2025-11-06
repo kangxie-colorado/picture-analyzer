@@ -1,15 +1,26 @@
 # Picture Analyzer API
 
-A Flask-based REST API that uses Claude AI (Anthropic) to analyze images. Upload pictures and get detailed AI-powered analysis.
+A Flask-based REST API that uses Claude AI (Anthropic) to analyze images and crop dashboard panels. Upload pictures and get detailed AI-powered analysis, or extract specific panels from dashboard screenshots.
 
 ## Features
 
+### Image Analysis
 - Upload images via HTTP POST for analysis
 - Analyze images from URLs
-- Supports multiple image formats (PNG, JPG, JPEG, GIF, WEBP)
 - Custom analysis prompts
 - Powered by Claude 3.5 Sonnet vision model
+
+### Dashboard Panel Cropping (NEW!)
+- Automatically crop specific panels from dashboard screenshots
+- AI-powered panel boundary detection
+- YAML-based dashboard layout definitions
+- Command-line tool and REST API support
+- Supports complex multi-row dashboard layouts
+
+### General
+- Supports multiple image formats (PNG, JPG, JPEG, GIF, WEBP)
 - CORS enabled for web applications
+- Easy to integrate with any programming language
 
 ## Setup
 
@@ -132,6 +143,195 @@ curl -X POST http://localhost:5000/analyze-url \
 }
 ```
 
+### 4. Crop Dashboard Panel
+
+Crop a specific panel from a dashboard screenshot using AI-powered boundary detection.
+
+**Endpoint:** `POST /crop-panel`
+
+**Content-Type:** `multipart/form-data`
+
+**Parameters:**
+- `image` (required): Dashboard screenshot file
+- `dashboard_name` (required): Dashboard name (e.g., 'abase-risk-analysis')
+- `panel_id` (required): Panel ID to crop (e.g., 'S1-L-write', 'S2-R-partition')
+- `return_metadata` (optional): Return JSON with metadata instead of image (default: false)
+
+**Example using curl:**
+```bash
+curl -X POST http://localhost:5000/crop-panel \
+  -F "image=@dashboard.png" \
+  -F "dashboard_name=abase-risk-analysis" \
+  -F "panel_id=S1-L-write" \
+  --output S1-L-write.png
+```
+
+**Example with metadata:**
+```bash
+curl -X POST http://localhost:5000/crop-panel \
+  -F "image=@dashboard.png" \
+  -F "dashboard_name=abase-risk-analysis" \
+  -F "panel_id=S1-L-write" \
+  -F "return_metadata=true"
+```
+
+**Response (with return_metadata=true):**
+```json
+{
+  "success": true,
+  "panel_id": "S1-L-write",
+  "dashboard": "abase-risk-analysis",
+  "image": "<base64-encoded PNG>",
+  "metadata": {
+    "panel_id": "S1-L-write",
+    "panel_role": "global_capacity_headroom",
+    "boundaries": {
+      "x": 50,
+      "y": 100,
+      "width": 800,
+      "height": 400,
+      "confidence": "high",
+      "notes": "Panel identified in row 1, left side"
+    }
+  }
+}
+```
+
+### 5. Get Dashboard Layout
+
+Get information about a dashboard's layout and available panels.
+
+**Endpoint:** `GET /dashboard-layout/<dashboard_name>`
+
+**Example:**
+```bash
+curl http://localhost:5000/dashboard-layout/abase-risk-analysis
+```
+
+**Response:**
+```json
+{
+  "dashboard_id": "cc-risk-analysis/abase-risk-analysis",
+  "name": "Abase Risk Analysis",
+  "rows": [
+    {
+      "id": "S1",
+      "title": "写/读 RU Quota vs Usage，左边为总，右边为DC",
+      "intent": "Headroom & per-DC stress detection (write/read).",
+      "panels": [
+        {
+          "id": "S1-L-write",
+          "role": "global_capacity_headroom",
+          "source": "left/write"
+        },
+        {
+          "id": "S1-R-write",
+          "role": "per_dc_capacity_headroom",
+          "source": "right/write"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Dashboard Panel Cropping
+
+### Overview
+
+The panel cropping feature allows you to automatically extract specific panels from dashboard screenshots. This is useful for:
+
+- Automated monitoring and reporting
+- Creating panel-specific alerts
+- Extracting metrics for analysis
+- Building custom dashboards from existing ones
+
+### How It Works
+
+1. **Define Dashboard Layout**: Create a YAML file describing your dashboard structure (rows and panels)
+2. **Take Screenshot**: Capture your dashboard as an image
+3. **Crop Panel**: Use the API or CLI to extract specific panels
+4. **AI Detection**: Claude Vision identifies panel boundaries automatically
+
+### Dashboard Layout YAML
+
+Dashboard layouts are defined in YAML files under `dashboard-prompts/<dashboard-name>/static_pack.yaml`.
+
+**Example structure:**
+```yaml
+schema_version: 1
+
+dashboard_static:
+  id: "my-dashboard"
+  human_name: "My Dashboard"
+
+  layout_description:
+    - "This dashboard has 3 rows"
+    - "Each row contains multiple panels"
+
+  rows:
+    - id: "S1"
+      title: "First Row Title"
+      intent: "Purpose of this row"
+      panels:
+        - id: "S1-L-write"
+          role: "metric_name"
+          source: "left/write"
+        - id: "S1-R-read"
+          role: "metric_name"
+          source: "right/read"
+
+    - id: "S2"
+      title: "Second Row Title"
+      intent: "Purpose of this row"
+      panels:
+        - id: "S2-L-disk"
+          role: "storage_metrics"
+```
+
+### Panel ID Convention
+
+Panel IDs follow the pattern: `{row}-{position}-{name}`
+
+- **Row**: S1, S2, S3, etc.
+- **Position**: L (left), R (right), L2 (left, 2nd), etc.
+- **Name**: Descriptive name (optional)
+
+**Examples:**
+- `S1-L-write` - Row 1, Left panel, write metrics
+- `S2-R-partition` - Row 2, Right panel, partition data
+- `S3-L2-value_size` - Row 3, Left 2nd panel, value size
+
+### Command-Line Tool
+
+Use the `crop_cli.py` script for local panel cropping:
+
+**Basic usage:**
+```bash
+python crop_cli.py screenshot.png abase-risk-analysis S1-L-write
+```
+
+**With custom output:**
+```bash
+python crop_cli.py screenshot.png abase-risk-analysis S1-L-write -o output.png
+```
+
+**List available panels:**
+```bash
+python crop_cli.py screenshot.png abase-risk-analysis --list-panels
+```
+
+**With API key:**
+```bash
+python crop_cli.py screenshot.png abase-risk-analysis S1-L-write --api-key sk-xxx
+```
+
+Or set environment variable:
+```bash
+export ANTHROPIC_API_KEY=sk-xxx
+python crop_cli.py screenshot.png abase-risk-analysis S1-L-write
+```
+
 ## Usage Examples
 
 ### Python
@@ -155,6 +355,35 @@ response = requests.post(
 )
 result = response.json()
 print(result['analysis'])
+
+# Crop a panel from dashboard
+with open('dashboard.png', 'rb') as f:
+    response = requests.post(
+        'http://localhost:5000/crop-panel',
+        files={'image': f},
+        data={
+            'dashboard_name': 'abase-risk-analysis',
+            'panel_id': 'S1-L-write'
+        }
+    )
+    # Save the cropped image
+    with open('S1-L-write.png', 'wb') as out:
+        out.write(response.content)
+
+# Crop panel with metadata
+with open('dashboard.png', 'rb') as f:
+    response = requests.post(
+        'http://localhost:5000/crop-panel',
+        files={'image': f},
+        data={
+            'dashboard_name': 'abase-risk-analysis',
+            'panel_id': 'S1-L-write',
+            'return_metadata': 'true'
+        }
+    )
+    result = response.json()
+    print(f"Confidence: {result['metadata']['confidence']}")
+    print(f"Boundaries: {result['metadata']['boundaries']}")
 ```
 
 ### JavaScript (Node.js)

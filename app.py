@@ -1,10 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import anthropic
 import os
 import base64
 from werkzeug.utils import secure_filename
 import mimetypes
+from io import BytesIO
+from dashboard_layout import parse_dashboard_layout, DashboardLayout
+from panel_cropper import PanelCropper
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -48,10 +51,12 @@ def get_image_media_type(filename):
 def index():
     return jsonify({
         'service': 'Picture Analyzer API',
-        'version': '1.0.0',
+        'version': '2.0.0',
         'endpoints': {
             'POST /analyze': 'Analyze an image',
             'POST /analyze-url': 'Analyze an image from URL',
+            'POST /crop-panel': 'Crop a specific panel from a dashboard screenshot',
+            'GET /dashboard-layout/<dashboard_name>': 'Get dashboard layout info',
             'GET /health': 'Health check'
         }
     })
@@ -216,6 +221,138 @@ def analyze_image_url():
             'prompt_used': analysis_prompt
         })
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/dashboard-layout/<dashboard_name>', methods=['GET'])
+def get_dashboard_layout(dashboard_name):
+    """
+    Get information about a dashboard layout
+
+    Path parameter:
+    - dashboard_name: Name of the dashboard (e.g., 'abase-risk-analysis')
+    """
+    try:
+        # Build path to layout YAML
+        layout_path = os.path.join(
+            'dashboard-prompts',
+            dashboard_name,
+            'static_pack.yaml'
+        )
+
+        if not os.path.exists(layout_path):
+            return jsonify({'error': f'Dashboard layout not found: {dashboard_name}'}), 404
+
+        # Parse layout
+        layout = parse_dashboard_layout(layout_path)
+
+        # Build response
+        response = {
+            'dashboard_id': layout.id,
+            'name': layout.human_name,
+            'rows': []
+        }
+
+        for row in layout.rows:
+            row_data = {
+                'id': row.id,
+                'title': row.title,
+                'intent': row.intent,
+                'panels': [
+                    {
+                        'id': panel.id,
+                        'role': panel.role,
+                        'source': panel.source
+                    }
+                    for panel in row.panels
+                ]
+            }
+            response['rows'].append(row_data)
+
+        return jsonify(response)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/crop-panel', methods=['POST'])
+def crop_panel():
+    """
+    Crop a specific panel from a dashboard screenshot
+
+    Form data:
+    - image: Dashboard screenshot (required)
+    - dashboard_name: Dashboard name (e.g., 'abase-risk-analysis') (required)
+    - panel_id: Panel ID to crop (e.g., 'S1-L-write') (required)
+    - return_metadata: Whether to return metadata as JSON (default: false)
+    """
+    if not API_KEY:
+        return jsonify({'error': 'API key not configured'}), 500
+
+    # Check required fields
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+
+    if 'dashboard_name' not in request.form:
+        return jsonify({'error': 'No dashboard_name provided'}), 400
+
+    if 'panel_id' not in request.form:
+        return jsonify({'error': 'No panel_id provided'}), 400
+
+    file = request.files['image']
+    dashboard_name = request.form['dashboard_name']
+    panel_id = request.form['panel_id']
+    return_metadata = request.form.get('return_metadata', 'false').lower() == 'true'
+
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': f'File type not allowed. Allowed types: {", ".join(ALLOWED_EXTENSIONS)}'}), 400
+
+    try:
+        # Load dashboard layout
+        layout_path = os.path.join(
+            'dashboard-prompts',
+            dashboard_name,
+            'static_pack.yaml'
+        )
+
+        if not os.path.exists(layout_path):
+            return jsonify({'error': f'Dashboard layout not found: {dashboard_name}'}), 404
+
+        layout = parse_dashboard_layout(layout_path)
+
+        # Read image
+        image_data = file.read()
+
+        # Initialize cropper
+        cropper = PanelCropper(API_KEY)
+
+        # Crop the panel
+        cropped_image, metadata = cropper.crop_panel_by_id(image_data, layout, panel_id)
+
+        # Return based on preference
+        if return_metadata:
+            # Return JSON with base64-encoded image
+            cropped_base64 = base64.standard_b64encode(cropped_image).decode('utf-8')
+            return jsonify({
+                'success': True,
+                'panel_id': panel_id,
+                'dashboard': dashboard_name,
+                'image': cropped_base64,
+                'metadata': metadata
+            })
+        else:
+            # Return the image directly
+            return send_file(
+                BytesIO(cropped_image),
+                mimetype='image/png',
+                as_attachment=True,
+                download_name=f'{panel_id}.png'
+            )
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
