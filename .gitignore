@@ -26,13 +26,13 @@ wheels/
 .installed.cfg
 *.egg
 
-# Uploads directory
+# Uploads and outputs directories
 uploads/
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.webp
+outputs/
+
+# Allow screenshots to be committed
+!screenshots/*.png
+!screenshots/*.jpg
 
 # IDE
 .vscode/
