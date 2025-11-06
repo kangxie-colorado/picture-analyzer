@@ -1,0 +1,75 @@
+dashboard: abase-risk-analysis
+version: '1.0'
+description: Pixel-based panel coordinates (no LLM required for cropping)
+image_dimensions:
+  width: 1920
+  height: 1460
+
+note: |
+  These coordinates were measured from a reference screenshot.
+  They should work for all screenshots with the same dashboard layout and resolution.
+  Adjust if your screenshots have different dimensions.
+
+panels:
+  S1-L-write:
+    # Row 1, Left column, Top panel (Read Total)
+    x: 27
+    y: 98
+    width: 627
+    height: 145
+
+  S1-R-write:
+    # Row 1, Right column, Top panel (Read per DC)
+    x: 654
+    y: 98
+    width: 627
+    height: 145
+
+  S1-L-read:
+    # Row 1, Left column, Bottom panel (Write Total)
+    x: 27
+    y: 246
+    width: 627
+    height: 155
+
+  S1-R-read:
+    # Row 1, Right column, Bottom panel (Write per DC)
+    x: 654
+    y: 246
+    width: 627
+    height: 155
+
+  S2-L-disk:
+    # Row 2, Left panel (Disk Usage w/ top 3 sub tables)
+    x: 27
+    y: 420
+    width: 627
+    height: 168
+
+  S2-R-partition:
+    # Row 2, Right panel (Storage Capacity Partition Perspective Max)
+    x: 654
+    y: 420
+    width: 627
+    height: 168
+
+  S3-L-qps_vs_quota:
+    # Row 3, Left panel (QPS vs Quota)
+    x: 27
+    y: 617
+    width: 627
+    height: 148
+
+  S3-R-hotkey:
+    # Row 3, Right panel (Hotkey RU top3)
+    x: 654
+    y: 617
+    width: 627
+    height: 148
+
+  S3-L2-value_size:
+    # Row 3, Bottom panel full-width (Single Value Size per DC)
+    x: 27
+    y: 770
+    width: 1254
+    height: 150
