@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "_about_run_pack": "This file contains RUNTIME parameters for dashboard analysis - the specific values that change between different analysis runs. These values are extracted from the Grafana dashboard URL query parameters (var-*) and instantiated into the template placeholders ({{var-*}}). It includes: (1) time_window - when the metrics were captured, (2) scope - which specific cluster/namespace/table/region is being analyzed, (3) controls - analysis parameters like downsampling and topN, (4) output_format - how the AI should structure its response. This is combined with static_pack (which contains dashboard structure and analysis objectives) to form the complete analysis prompt.",
+  "run_pack": {
+    "time_window": {
+      "start": "{{var-time_start_iso8601}}",
+      "end": "{{var-time_end_iso8601}}",
+      "tz": "{{var-timezone}}"
+    },
+    "scope": {
+      "cluster": "{{var-cluster}}",
+      "namespace": "{{var-namespace}}",
+      "table": "{{var-table}}",
+      "region_selector": "{{var-region}}"
+    },
+    "controls": {
+      "downsampling": "{{var-downsampling}}",
+      "topN": "{{var-topN}}",
+      "master_dc": "{{var-master_dc}}"
+    },
+    "output_format": {
+      "language": "用中文回答 (Answer in Chinese)",
+      "format": "Return response content as structured JSON object (not markdown string)",
+      “verbosity”: "Make sure the response contains the resource identities, such as which region/cluster/namespace/table is being analyzed",
+      "json_schema": {
+        "summary": "string - 1-2 paragraph summary in Chinese",
+        "findings": "array of strings - key findings from dashboard analysis",
+        "risks": "array of risk objects - each with: title (string and better in English for title), severity (critical|high|medium|low), description (string), location (string, e.g. 'S2 row, right panel'), bounding_box (optional object with normalized coordinates {x, y, width, height} in 0-1 range where x=left edge, y=top edge, width=box width, height=box height)",
+        "correlations": "array of strings - relationships between metrics",
+        "next_steps": "array of strings - recommended actions",
+        "title": "string - A short descriptive title for the analysis (max 10 words)",
+        "dashboard_understanding": [
+          { "purpose": "want to confirm how well AI understands this dashboard and its purpose" },
+          { "summary": "a summary of the dashboard" },
+          { "rows": "a description of the rows and the associated panels" }
+        ]
+      },
+      "example": {
+        "summary": "读RU容量已达上限...",
+        "findings": ["读RU使用量达278K，已触及配额上限", "存储配额9.26TB已满"],
+        "risks": [
+          {
+            "title": "Plea",
+            "severity": "high",
+            "description": "读RU使用量达278K，已触及配额上限，可能触发限流",
+            "location": "S1 row, left panel",
+            "bounding_box": {"x": 0.0, "y": 0.0, "width": 0.5, "height": 0.33}
+          }
+        ],
+        "correlations": ["读RU饱和与hotkey无直接关联"],
+        "next_steps": ["扩容读RU配额", "清理历史数据"],
+        "title": "Abase容量风险告警",
+        "dashboard_understanding": [
+          { "purpose": "want to confirm how well AI understands this dashboard and its purpose" },
+          { "summary": "a summary of the dashboard" },
+          { "rows": "a description of the rows and the associated panels" }
+        ]
+      }
+    }
+  }
+}

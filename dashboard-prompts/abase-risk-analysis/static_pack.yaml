@@ -1,0 +1,73 @@
+schema_version: 1
+
+dashboard_static:
+  id: "cc-risk-analysis/abase-risk-analysis"
+  human_name: "Abase Risk Analysis"
+
+  layout_description: 
+    - "this dashboard has 3 rows, each row has a title and a list of panels, which are described in the rows section"
+    - "each panel has a time series graph, with a y-axis and an x-axis"
+    - "each panel has a lengend to the right, identifying the data series with different colors"
+
+    
+  analysis_objectives: 
+    - "Capacity headroom vs usage (read/write)."
+    - "Storage growth & balance across subtables/partitions."
+    - "Traffic vs budget (QPS vs quota) and hotspot risk."
+    - "Try to identify any anomalies in the dashboard but please be reasonable and do not over-react"
+  
+
+  analysis_tips:
+    - "If there are spikes, look at its width and height, a small bulp isn't super important; if it lasts for over than 10 minutes, then it is a risk"
+    - "If there is a quota line, then cross quota or approaching quota is **ALWAYS** a risk"
+    - "If the resource usage is **HIGH** on a global level, then it is a high severity risk"
+    - "If the resource usage is **HIGH** on a smaller scope, then it is a medium severity risk"
+
+  rows:
+    - id: "S1"
+      title: "写/读 RU Quota vs Usage，左边为总，右边为DC"
+      intent: "Headroom & per-DC stress detection (write/read)."
+      panels:
+        - id: "S1-L-write"
+          role: "global_capacity_headroom"
+          source: "left/write"
+        - id: "S1-R-write"
+          role: "per_dc_capacity_headroom"
+          source: "right/write"
+        - id: "S1-L-read"
+          role: "global_capacity_headroom"
+          source: "left/read"
+        - id: "S1-R-read"
+          role: "per_dc_capacity_headroom"
+          source: "right/read"
+      relationships:
+        - "Global usage should be ≤ quota; per-DC stress indicates imbalance."
+        
+    - id: "S2"
+      title: "观察数据库存储的整体使用，从table以及分片的角度"
+      intent: "Storage pressure & fragmentation risk."
+      panels:
+        - id: "S2-L-disk"
+          role: "table_and_subtable_storage"
+        - id: "S2-R-partition"
+          role: "partition_capacity_max"
+      relationships:
+        - "Subtable growth → partition max increases; persistent gap suggests skew."
+    - id: "S3"
+      title: "先行：是否有流量的Hot-Key；并跟QPS可以映射的关系；其次：观察数据压缩的特征，是否有大object写入"
+      intent: "Hotspots vs traffic budget; object size risk."
+      panels:
+        - id: "S3-L-qps_vs_quota"
+          role: "qps_vs_quota_alignment"
+        - id: "S3-R-hotkey"
+          role: "hotkey_activity_topN"
+        - id: "S3-L2-value_size"
+          role: "value_size_characteristics"
+      relationships:
+        - "Hotkey spikes could exhaust the QPS quota -> trigger rate limit and impact other tenants."
+        - "Larger value size → rising storage/cost and potential RU drift."
+        - "If the object size is larger than 10MB, it is likely to be a large object and need to be investigated"
+
+  identifiers:
+    row_id_pattern: "S{n}"
+    panel_id_pattern: "S{n}-{position}-{name}"  # keep stable across edits
