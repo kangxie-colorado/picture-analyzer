@@ -6,70 +6,70 @@ image_dimensions:
   height: 1460
 
 note: |
-  These coordinates trace the colored rectangle boundaries marking each panel in screenshots/abase-risk-anal-11041203.png.
+  These coordinates were automatically detected from filled colored blocks in screenshots/abase-risk-anal-11041203_filled_v5.png.
   Actual dimensions obtained using PIL: 1920x1460 pixels.
   Coordinates include the full panel content within the colored borders (legends included).
 
 panels:
   S1-L-read:
     # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Green rectangle, top-left)
-    x: 57
-    y: 121
-    width: 903
-    height: 241
+    x: 58
+    y: 124
+    width: 928
+    height: 246
 
   S1-R-read:
     # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Magenta rectangle, top-right)
-    x: 964
-    y: 121
-    width: 916
-    height: 241
+    x: 987
+    y: 124
+    width: 932
+    height: 246
 
   S1-L-write:
     # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Magenta rectangle, middle-left)
-    x: 57
-    y: 366
-    width: 903
-    height: 223
+    x: 55
+    y: 376
+    width: 928
+    height: 229
 
   S1-R-write:
     # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Cyan rectangle, middle-right)
-    x: 964
-    y: 366
-    width: 916
-    height: 223
+    x: 988
+    y: 376
+    width: 931
+    height: 229
 
   S2-L-disk:
     # Disk Usage w/ top 3 sub tables (Red rectangle, row 3 left)
-    x: 57
-    y: 592
-    width: 903
-    height: 294
+    x: 64
+    y: 635
+    width: 923
+    height: 266
 
   S2-R-partition:
     # Storage Capacity (Partition Perspective) Max (Yellow rectangle, row 3 right)
-    x: 964
-    y: 592
-    width: 916
-    height: 294
+    x: 991
+    y: 635
+    width: 924
+    height: 266
 
   S3-L-qps_vs_quota:
     # 分片QPS vs 分片QPS Quota (Blue rectangle, row 4 left)
-    x: 57
-    y: 889
-    width: 903
-    height: 253
+    x: 64
+    y: 902
+    width: 923
+    height: 267
 
   S3-R-hotkey:
     # 热key RU top3 (Orange rectangle, row 4 right)
-    x: 964
-    y: 889
-    width: 916
-    height: 253
+    x: 991
+    y: 902
+    width: 924
+    height: 267
 
   S3-L2-value_size:
     # 写 Single Value Size per DC (Green rectangle, row 5 full-width)
-    x: 57
-    y: 1146
-    width: 903
-    height: 243
+    x: 64
+    y: 1171
+    width: 919
+    height: 253
