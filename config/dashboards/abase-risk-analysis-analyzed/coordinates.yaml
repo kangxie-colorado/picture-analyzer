@@ -6,70 +6,70 @@ image_dimensions:
   height: 1460
 
 note: |
-  These coordinates were measured by carefully examining panel boundaries in screenshots/abase-risk-anal-11041203.png.
+  These coordinates trace the colored rectangle boundaries marking each panel in screenshots/abase-risk-anal-11041203.png.
   Actual dimensions obtained using PIL: 1920x1460 pixels.
-  Coordinates trace the visible panel borders including titles and legends.
+  Coordinates include the full panel content within the colored borders (legends included).
 
 panels:
   S1-L-read:
-    # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-left, Global Read)
-    x: 28
-    y: 95
-    width: 625
-    height: 148
+    # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Green rectangle, top-left)
+    x: 40
+    y: 83
+    width: 597
+    height: 157
 
   S1-R-read:
-    # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-right, Read per DC)
-    x: 665
-    y: 95
-    width: 625
-    height: 148
+    # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Magenta rectangle, top-right)
+    x: 647
+    y: 83
+    width: 605
+    height: 157
 
   S1-L-write:
-    # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-left, Global Write)
-    x: 28
-    y: 255
-    width: 625
-    height: 148
+    # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Magenta rectangle, middle-left)
+    x: 40
+    y: 246
+    width: 597
+    height: 145
 
   S1-R-write:
-    # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-right, Write per DC)
-    x: 665
-    y: 255
-    width: 625
-    height: 148
+    # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Cyan rectangle, middle-right)
+    x: 647
+    y: 246
+    width: 605
+    height: 145
 
   S2-L-disk:
-    # Disk Usage w/ top 3 sub tables (Left panel in row 2)
-    x: 28
-    y: 416
-    width: 625
+    # Disk Usage w/ top 3 sub tables (Red rectangle, row 3 left)
+    x: 40
+    y: 414
+    width: 597
     height: 175
 
   S2-R-partition:
-    # Storage Capacity (Partition Perspective) Max (Right panel in row 2)
-    x: 665
-    y: 416
-    width: 625
+    # Storage Capacity (Partition Perspective) Max (Yellow rectangle, row 3 right)
+    x: 647
+    y: 414
+    width: 605
     height: 175
 
   S3-L-qps_vs_quota:
-    # 分片QPS vs 分片QPS Quota (Top-left in row 3)
-    x: 28
-    y: 604
-    width: 625
-    height: 179
+    # 分片QPS vs 分片QPS Quota (Blue rectangle, row 4 left)
+    x: 40
+    y: 612
+    width: 597
+    height: 148
 
   S3-R-hotkey:
-    # 热key RU top3 (Top-right in row 3)
-    x: 665
-    y: 604
-    width: 625
-    height: 179
+    # 热key RU top3 (Orange rectangle, row 4 right)
+    x: 647
+    y: 612
+    width: 605
+    height: 148
 
   S3-L2-value_size:
-    # 写 Single Value Size per DC (Bottom full-width in row 3)
-    x: 28
-    y: 795
-    width: 1262
-    height: 115
+    # 写 Single Value Size per DC (Green rectangle, row 5 full-width)
+    x: 40
+    y: 766
+    width: 597
+    height: 158
