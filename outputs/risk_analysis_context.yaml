@@ -1,0 +1,86 @@
+dashboard_name: abase-risk-analysis
+image_path: screenshots/abase-risk-anal-11041203.png
+total_panels: 9
+panels:
+- panel_id: S1-L-read
+  description: 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-left, Global Read)
+  type: read_capacity
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s1-l-read.png
+  risk_indicators:
+  - Current usage approaching quota/limit
+  - Sudden spikes or unusual patterns
+  - Consistent near-limit operation
+  - Cross-DC imbalances
+- panel_id: S1-R-read
+  description: 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-right, Read per
+    DC)
+  type: read_capacity
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s1-r-read.png
+  risk_indicators:
+  - Current usage approaching quota/limit
+  - Sudden spikes or unusual patterns
+  - Consistent near-limit operation
+  - Cross-DC imbalances
+- panel_id: S1-L-write
+  description: 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-left, Global
+    Write)
+  type: write_capacity
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s1-l-write.png
+  risk_indicators:
+  - Current usage approaching quota/limit
+  - Write throttling indicators
+  - Sustained high write rates
+  - DC-level imbalances
+- panel_id: S1-R-write
+  description: 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-right, Write
+    per DC)
+  type: write_capacity
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s1-r-write.png
+  risk_indicators:
+  - Current usage approaching quota/limit
+  - Write throttling indicators
+  - Sustained high write rates
+  - DC-level imbalances
+- panel_id: S2-L-disk
+  description: Disk Usage w/ top 3 sub tables (Left panel in row 2)
+  type: storage
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s2-l-disk.png
+  risk_indicators:
+  - Disk usage above 80%
+  - Rapid growth trends
+  - Top tables consuming excessive space
+  - Low remaining capacity
+- panel_id: S2-R-partition
+  description: Storage Capacity (Partition Perspective) Max (Right panel in row 2)
+  type: storage
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s2-r-partition.png
+  risk_indicators:
+  - Disk usage above 80%
+  - Rapid growth trends
+  - Top tables consuming excessive space
+  - Low remaining capacity
+- panel_id: S3-L-qps_vs_quota
+  description: 分片QPS vs 分片QPS Quota (Top-left in row 3)
+  type: qps_quota
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s3-l-qps_vs_quota.png
+  risk_indicators:
+  - QPS approaching or exceeding quota
+  - Quota violations
+  - Traffic concentration on specific shards
+- panel_id: S3-R-hotkey
+  description: 热key RU top3 (Top-right in row 3)
+  type: hotkey
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s3-r-hotkey.png
+  risk_indicators:
+  - Presence of hot keys
+  - High RU consumption by specific keys
+  - Uneven access patterns
+- panel_id: S3-L2-value_size
+  description: 写 Single Value Size per DC (Bottom full-width in row 3)
+  type: write_capacity
+  image_path: /tmp/risk_analysis_cni7qjsj/abase-risk-analysis_s3-l2-value_size.png
+  risk_indicators:
+  - Current usage approaching quota/limit
+  - Write throttling indicators
+  - Sustained high write rates
+  - DC-level imbalances
