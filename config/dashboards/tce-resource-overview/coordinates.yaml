@@ -1,0 +1,41 @@
+dashboard: tce-resource-overview
+version: '1.0'
+description: Pixel-based panel coordinates (no LLM required for cropping)
+image_dimensions:
+  width: 3332
+  height: 1568
+
+note: |
+  These coordinates were automatically detected from filled colored blocks in screenshots/tce_panels_filled_4colors_taller.png.
+  Original filled image dimensions: 2047x963
+  Scaled to match actual screenshot dimensions: 3332x1568 (scale factor: ~1.628x)
+  Coordinates include the full panel content within the colored borders (legends included).
+
+panels:
+  panel-1-left:
+    # Orange/tan colored panel (top-left)
+    x: 52
+    y: 195
+    width: 1578
+    height: 643
+
+  panel-1-right:
+    # Green colored panel (top-right)
+    x: 1700
+    y: 195
+    width: 1580
+    height: 643
+
+  panel-2-left:
+    # Blue colored panel (bottom-left)
+    x: 52
+    y: 879
+    width: 1578
+    height: 646
+
+  panel-2-right:
+    # Magenta/purple colored panel (bottom-right)
+    x: 1700
+    y: 879
+    width: 1580
+    height: 646
