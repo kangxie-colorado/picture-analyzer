@@ -24,8 +24,16 @@ When the user asks to analyze a dashboard screenshot, follow these steps:
 
 ### Step 1: Load and Examine the Image
 
-Read the image file and carefully examine the dashboard layout:
-- Note the overall image dimensions (width x height)
+First, get the actual image dimensions using PIL:
+```python
+from PIL import Image
+img = Image.open('path/to/screenshot.png')
+width, height = img.width, img.height
+print(f"Image dimensions: {width}x{height}")
+```
+
+Then carefully examine the dashboard layout:
+- Use the actual dimensions from PIL (not visual estimation)
 - Identify distinct rows or sections
 - Count visible panels
 - Observe the layout pattern (grid, side-by-side, etc.)
