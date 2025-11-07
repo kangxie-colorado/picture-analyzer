@@ -1,0 +1,75 @@
+dashboard: abase-risk-analysis
+version: '1.0'
+description: Pixel-based panel coordinates (no LLM required for cropping)
+image_dimensions:
+  width: 1260
+  height: 948
+
+note: |
+  These coordinates were extracted through visual analysis of screenshots/abase-risk-anal-11041203.png.
+  They work for screenshots with the same dashboard layout and resolution.
+  Measured with ±5 pixel accuracy target.
+
+panels:
+  S1-L-read:
+    # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限
+    x: 18
+    y: 95
+    width: 614
+    height: 152
+
+  S1-R-read:
+    # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限
+    x: 647
+    y: 95
+    width: 595
+    height: 152
+
+  S1-L-write:
+    # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限
+    x: 18
+    y: 264
+    width: 614
+    height: 138
+
+  S1-R-write:
+    # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限
+    x: 647
+    y: 264
+    width: 595
+    height: 138
+
+  S2-L-disk:
+    # Disk Usage w/ top 3 sub tables
+    x: 18
+    y: 417
+    width: 614
+    height: 178
+
+  S2-R-partition:
+    # Storage Capacity (Partition Perspective) Max
+    x: 647
+    y: 417
+    width: 595
+    height: 178
+
+  S3-L-qps_vs_quota:
+    # 分片QPS vs 分片QPS Quota
+    x: 18
+    y: 610
+    width: 614
+    height: 171
+
+  S3-R-hotkey:
+    # 热key RU top3
+    x: 647
+    y: 610
+    width: 595
+    height: 171
+
+  S3-L2-value_size:
+    # 写 Single Value Size per DC
+    x: 18
+    y: 792
+    width: 1224
+    height: 142

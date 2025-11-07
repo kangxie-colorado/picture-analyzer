@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "_about_run_pack": "Runtime parameters for dashboard analysis. Template variables ({{var-*}}) should be replaced with actual values from Grafana URL parameters when performing analysis. This file defines the runtime scope (time window, cluster, namespace, table), controls (downsampling, topN), and expected output format for the analysis.",
+  "run_pack": {
+    "time_window": {
+      "start": "{{var-time_start_iso8601}}",
+      "end": "{{var-time_end_iso8601}}",
+      "tz": "{{var-timezone}}"
+    },
+    "scope": {
+      "cluster": "{{var-cluster}}",
+      "namespace": "{{var-namespace}}",
+      "table": "{{var-table}}",
+      "region_selector": "{{var-region}}"
+    },
+    "controls": {
+      "downsampling": "{{var-downsampling}}",
+      "topN": "{{var-topN}}"
+    },
+    "output_format": {
+      "language": "用中文回答 (Answer in Chinese)",
+      "format": "Return response content as structured JSON object (not markdown string)",
+      "verbosity": "Make sure the response contains the resource identities, such as which region/cluster/namespace/table is being analyzed",
+      "json_schema": {
+        "summary": "string - 1-2 paragraph summary in Chinese describing overall dashboard health",
+        "findings": "array of strings - key findings from dashboard analysis with specific metric values",
+        "risks": "array of risk objects - each with: title (string, preferably in English), severity (critical|high|medium|low), description (string in Chinese), location (string, e.g. 'S2 row, right panel'), bounding_box (optional object with normalized coordinates {x, y, width, height} in 0-1 range where 0,0 is top-left)",
+        "correlations": "array of strings - relationships between metrics across different panels",
+        "next_steps": "array of strings - recommended actions prioritized by urgency",
+        "title": "string - short descriptive title for the analysis (max 10 words)",
+        "dashboard_understanding": {
+          "purpose": "string - AI's understanding of what this dashboard monitors",
+          "summary": "string - brief summary of the dashboard structure and layout",
+          "rows": "string - description of the 3 rows and their associated panels"
+        }
+      },
+      "example": {
+        "summary": "Abase数据库整体运行平稳，但读RU使用率接近配额上限（约85%），存在容量风险。存储增长正常，未发现明显的热key问题。",
+        "findings": [
+          "读RU全局使用约250K，接近配额上限300K（83%使用率）",
+          "写RU使用正常，约25K，配额充足",
+          "Disk使用量约3.4TB，主要由capcut_web_coordination表占用",
+          "未检测到明显的热key活动"
+        ],
+        "risks": [
+          {
+            "title": "Read Capacity Near Limit",
+            "severity": "high",
+            "description": "读RU使用率达83%，接近配额上限，可能触发限流影响业务",
+            "location": "S1 row, left panel (S1-L-read)",
+            "bounding_box": {
+              "x": 0.014,
+              "y": 0.100,
+              "width": 0.487,
+              "height": 0.160
+            }
+          }
+        ],
+        "correlations": [
+          "读RU高使用率与热key活动无明显关联，属于整体流量增长"
+        ],
+        "next_steps": [
+          "考虑扩容读RU配额至400K以提供安全余量",
+          "监控读流量增长趋势，评估长期容量规划"
+        ],
+        "title": "Abase容量预警 - 读RU接近上限",
+        "dashboard_understanding": {
+          "purpose": "监控Abase数据库的容量、存储和流量健康状况",
+          "summary": "3行布局：第1行监控读写RU配额使用情况，第2行监控存储使用，第3行监控QPS和热key",
+          "rows": "S1展示RU配额对比（全局与分DC），S2展示存储分布，S3展示流量特征和大对象写入"
+        }
+      }
+    }
+  }
+}

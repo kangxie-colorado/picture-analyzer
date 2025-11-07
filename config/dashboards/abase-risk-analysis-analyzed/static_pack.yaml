@@ -1,0 +1,80 @@
+schema_version: 1
+
+dashboard_static:
+  id: "abase-risk-analysis"
+  human_name: "Abase Risk Analysis"
+
+  layout_description:
+    - "Dashboard has 3 rows with 9 panels total: 2x2 grid in row 1, 2 side-by-side in row 2, and 3 panels (2 top + 1 full-width bottom) in row 3"
+    - "All panels are time series graphs with legends on the right side"
+    - "Each panel shows metrics over a 24-hour time window with quota/threshold lines where applicable"
+
+  analysis_objectives:
+    - "Monitor capacity headroom: Read/Write RU usage vs quota at both global and per-DC levels"
+    - "Track storage growth and distribution across tables, subtables, and partitions"
+    - "Identify traffic hotspots: QPS vs quota alignment and hot key detection"
+    - "Detect anomalies: Sustained spikes (>10 min), quota breaches, large object writes"
+
+  analysis_tips:
+    - "Brief spikes (<5 min) are typically normal; sustained issues (>10 min) indicate risks"
+    - "Crossing or approaching quota lines is ALWAYS a high-priority risk"
+    - "High resource usage at global level is more critical than localized high usage"
+    - "Compare left (global/total) vs right (per-DC) panels in row 1 to identify load imbalances"
+    - "Large value sizes (>10MB) in bottom panel warrant investigation for optimization"
+
+  rows:
+    - id: "S1"
+      title: "写/读 RU Quota vs Usage，左边为总，右边为DC"
+      intent: "Monitor capacity headroom and detect per-DC stress for both read and write operations"
+      panels:
+        - id: "S1-L-read"
+          role: "global_capacity_headroom"
+          source: "left/read"
+        - id: "S1-R-read"
+          role: "per_dc_capacity_headroom"
+          source: "right/read"
+        - id: "S1-L-write"
+          role: "global_capacity_headroom"
+          source: "left/write"
+        - id: "S1-R-write"
+          role: "per_dc_capacity_headroom"
+          source: "right/write"
+      relationships:
+        - "Global usage (left) should be ≤ quota; per-DC stress (right) indicates imbalance or single-DC overload"
+        - "Compare read vs write patterns to understand workload characteristics"
+
+    - id: "S2"
+      title: "观察数据库存储的整体使用，从table以及分片的角度"
+      intent: "Monitor storage pressure and identify fragmentation or skew risks"
+      panels:
+        - id: "S2-L-disk"
+          role: "table_and_subtable_storage"
+          source: "left"
+        - id: "S2-R-partition"
+          role: "partition_capacity_max"
+          source: "right"
+      relationships:
+        - "Subtable growth (left) should correlate with partition max increases (right)"
+        - "Persistent gap between subtables suggests data skew requiring rebalancing"
+
+    - id: "S3"
+      title: "先行：是否有流量的Hot-Key；并跟QPS可以映射的关系；其次：观察数据压缩的特征，是否有大object写入"
+      intent: "Detect hotspots vs traffic budget and identify large object write patterns"
+      panels:
+        - id: "S3-L-qps_vs_quota"
+          role: "qps_vs_quota_alignment"
+          source: "left"
+        - id: "S3-R-hotkey"
+          role: "hotkey_activity_topN"
+          source: "right"
+        - id: "S3-L2-value_size"
+          role: "value_size_characteristics"
+          source: "bottom"
+      relationships:
+        - "Hotkey spikes (right) can exhaust QPS quota (left) triggering rate limits"
+        - "Larger value sizes (bottom) increase storage/cost and may cause RU drift"
+        - "Object sizes >10MB likely indicate large object writes requiring investigation"
+
+  identifiers:
+    row_id_pattern: "S{n}"
+    panel_id_pattern: "S{n}-{position}-{name}"

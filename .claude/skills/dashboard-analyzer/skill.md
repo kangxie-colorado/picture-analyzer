@@ -1,137 +1,185 @@
 # Dashboard Analyzer Skill
 
-Analyze Grafana dashboard screenshots and generate configuration files for risk analysis.
+Analyze Grafana dashboard screenshots directly and generate configuration files for risk analysis.
 
 ## Purpose
 
-This skill extracts precise panel coordinates and dashboard structure from screenshots to enable accurate LLM-based risk analysis. The generated configuration files provide context and coordinates that help the LLM understand what it's analyzing.
+When the user provides a dashboard screenshot, analyze it using vision capabilities to extract precise panel coordinates and dashboard structure. Generate configuration files that enable accurate LLM-based risk analysis.
 
 ## Input
 
-- **Image path**: Path to a Grafana dashboard screenshot (any dimensions)
-- **Dashboard name** (optional): Human-readable name for the dashboard
+- **Image path**: Path to a Grafana dashboard screenshot
+- **Dashboard name** (optional): Human-readable name
 
 ## Output
 
 Three configuration files in `config/dashboards/<dashboard-id>/`:
-
 1. **coordinates.yaml**: Precise pixel coordinates for each panel
-2. **static_pack.yaml**: Dashboard structure, layout, and analysis guidance
-3. **run_pack.yaml**: Runtime configuration template for analysis
+2. **static_pack.yaml**: Dashboard structure and analysis guidance
+3. **run_pack.yaml**: Runtime configuration template
 
 ## Instructions
 
-When the user asks to analyze a dashboard, follow these steps:
+When the user asks to analyze a dashboard screenshot, follow these steps:
 
-### Step 1: Analyze Image with Claude Vision API
+### Step 1: Load and Examine the Image
 
-Use Claude Vision API to analyze the dashboard screenshot and extract:
+Read the image file and carefully examine the dashboard layout:
+- Note the overall image dimensions (width x height)
+- Identify distinct rows or sections
+- Count visible panels
+- Observe the layout pattern (grid, side-by-side, etc.)
 
-1. **Image dimensions** (width x height in pixels)
-2. **Panel coordinates** - PRECISE bounding boxes (x, y, width, height) for each panel
-   - x: left edge position (pixels from left)
-   - y: top edge position (pixels from top)
-   - width: panel width in pixels
-   - height: panel height in pixels
-   - Include title, graph area, legends, and axes
-   - Exclude excessive whitespace between panels
-   - Accuracy target: ±5 pixels
+### Step 2: Extract Precise Panel Coordinates
 
-3. **Dashboard structure**:
-   - Number of rows/sections
-   - Panel arrangement in each row
-   - Visual layout pattern
+For EACH panel, measure the bounding box coordinates:
 
-4. **Panel metadata**:
-   - Panel titles (visible text)
-   - What each panel measures
-   - Panel role/purpose
+**Measurement Guidelines:**
+- **x**: Distance from left edge of image to left edge of panel (pixels)
+- **y**: Distance from top edge of image to top edge of panel (pixels)
+- **width**: Panel width including title, graph, legend, axes (pixels)
+- **height**: Panel height including all components (pixels)
 
-5. **Analysis context**:
-   - Dashboard monitoring purpose
-   - Key metrics being tracked
-   - Risk analysis considerations
+**What to include:**
+- Panel title/heading
+- Graph/chart area
+- Legends (usually on right side)
+- Axis labels and scales
+- Any panel-specific controls
 
-### Step 2: Generate Panel IDs
+**What to exclude:**
+- Whitespace between panels
+- Dashboard header/navigation
+- Gaps between rows
 
-Use systematic naming: `S{row}-{position}-{name}`
-- Row: S1, S2, S3... (top to bottom)
-- Position: L (left), R (right), L2 (left second), R2, etc.
-- Name: descriptive keyword (write, read, qps, disk, etc.)
+**Accuracy target**: ±5 pixels
 
-Examples: `S1-L-write`, `S1-R-read`, `S2-L-disk`, `S3-L2-value_size`
+**Technique:**
+- Start from top-left corner of image (0, 0)
+- Measure to the visual boundary of each panel
+- Include the panel's border/container
+- Be systematic: go row by row, left to right
 
-### Step 3: Generate coordinates.yaml
+### Step 3: Generate Panel IDs
 
-Format:
+Create systematic IDs using pattern: `S{row}-{position}-{name}`
+
+**Components:**
+- **Row**: S1, S2, S3... (top to bottom)
+- **Position**:
+  - L = left column
+  - R = right column
+  - L2 = left column, second in vertical stack
+  - R2 = right column, second in vertical stack
+- **Name**: Descriptive keyword (lowercase, underscores)
+  - Examples: write, read, qps, disk, hotkey, value_size
+
+**Examples:**
+- First row, left panel about writes: `S1-L-write`
+- First row, right panel about reads: `S1-R-read`
+- Second row, left panel about disk: `S2-L-disk`
+- Third row, bottom full-width panel: `S3-L2-value_size`
+
+### Step 4: Understand Dashboard Purpose
+
+Analyze what the dashboard monitors:
+- What system/service is being monitored?
+- What are the key metrics? (capacity, performance, storage, traffic)
+- What would be important for risk analysis?
+- How do panels relate to each other?
+
+### Step 5: Generate coordinates.yaml
+
+Create the file with this structure:
+
 ```yaml
-dashboard: dashboard-id
+dashboard: <dashboard-id>
 version: '1.0'
 description: Pixel-based panel coordinates (no LLM required for cropping)
 image_dimensions:
-  width: <image_width>
-  height: <image_height>
+  width: <width>
+  height: <height>
 
 note: |
-  These coordinates were extracted using AI vision analysis.
-  They should work for all screenshots with the same dashboard layout and resolution.
+  These coordinates were extracted through visual analysis.
+  They work for screenshots with the same dashboard layout and resolution.
 
 panels:
   S1-L-write:
     # Panel title or description
-    x: 30
-    y: 250
-    width: 615
-    height: 153
+    x: <x_coordinate>
+    y: <y_coordinate>
+    width: <width_pixels>
+    height: <height_pixels>
+
   # ... more panels
 ```
 
-### Step 4: Generate static_pack.yaml
+**Important:**
+- Use actual measured coordinates
+- Add comments with panel titles
+- All values must be integers (pixels)
+- Verify coordinates are within image bounds
 
-Format:
+### Step 6: Generate static_pack.yaml
+
+Create the file with dashboard structure:
+
 ```yaml
 schema_version: 1
 
 dashboard_static:
-  id: "dashboard-id"
-  human_name: "Dashboard Human Name"
+  id: "<dashboard-id>"
+  human_name: "<Dashboard Human Name>"
 
   layout_description:
-    - "Description of dashboard layout"
-    - "Panel arrangement details"
+    - "Description of dashboard layout (e.g., '3 rows with varying layouts')"
+    - "Description of panel types (e.g., 'Time series graphs with legends')"
 
   analysis_objectives:
-    - "Key objective 1"
-    - "Key objective 2"
+    - "Key monitoring objective 1 (e.g., 'Capacity headroom vs usage')"
+    - "Key monitoring objective 2"
 
   analysis_tips:
     - "Tip for interpreting this dashboard"
-    - "Risk analysis guidance"
+    - "Risk analysis guidance (e.g., 'Spikes > 10min are concerning')"
 
   rows:
     - id: "S1"
-      title: "Row title or description"
-      intent: "What this row monitors"
+      title: "Row title or description of what this row monitors"
+      intent: "Purpose of this row (e.g., 'Headroom & per-DC stress detection')"
       panels:
         - id: "S1-L-write"
-          role: "panel_role_description"
+          role: "panel_role (e.g., 'global_capacity_headroom')"
           source: "left/write"
-        # ... more panels
+        - id: "S1-R-write"
+          role: "per_dc_capacity_headroom"
+          source: "right/write"
       relationships:
-        - "How panels relate to each other"
+        - "How panels in this row relate (e.g., 'Global vs per-DC comparison')"
 
   identifiers:
     row_id_pattern: "S{n}"
     panel_id_pattern: "S{n}-{position}-{name}"
 ```
 
-### Step 5: Generate run_pack.yaml (JSON format)
+**Panel Role Suggestions:**
+- `global_capacity_headroom` - Overall capacity metrics
+- `per_dc_capacity_headroom` - Per-datacenter capacity
+- `table_and_subtable_storage` - Storage breakdown
+- `partition_capacity_max` - Partition-level capacity
+- `qps_vs_quota_alignment` - Traffic vs limits
+- `hotkey_activity_topN` - Hotspot detection
+- `value_size_characteristics` - Object size analysis
 
-Format:
+### Step 7: Generate run_pack.yaml (JSON format)
+
+Create the runtime configuration template:
+
 ```json
 {
   "schema_version": 1,
-  "_about_run_pack": "Runtime parameters for dashboard analysis...",
+  "_about_run_pack": "Runtime parameters for dashboard analysis. Template variables ({{var-*}}) should be replaced with actual values from Grafana URL parameters.",
   "run_pack": {
     "time_window": {
       "start": "{{var-time_start_iso8601}}",
@@ -150,58 +198,78 @@ Format:
     },
     "output_format": {
       "language": "用中文回答 (Answer in Chinese)",
-      "format": "Return response content as structured JSON object",
-      "verbosity": "Include resource identities in response",
+      "format": "Return response content as structured JSON object (not markdown string)",
+      "verbosity": "Include resource identities in the response",
       "json_schema": {
-        "summary": "string - 1-2 paragraph summary",
-        "findings": "array of strings - key findings",
-        "risks": "array of risk objects with title, severity, description, location, bounding_box",
-        "correlations": "array of strings - metric relationships",
+        "summary": "string - 1-2 paragraph summary in Chinese",
+        "findings": "array of strings - key findings from dashboard analysis",
+        "risks": "array of risk objects - each with: title (string, preferably in English), severity (critical|high|medium|low), description (string), location (string, e.g. 'S2 row, right panel'), bounding_box (optional object with normalized coordinates {x, y, width, height} in 0-1 range)",
+        "correlations": "array of strings - relationships between metrics",
         "next_steps": "array of strings - recommended actions",
-        "title": "string - short descriptive title",
-        "dashboard_understanding": "object - AI's understanding of dashboard"
+        "title": "string - short descriptive title (max 10 words)",
+        "dashboard_understanding": {
+          "purpose": "AI's understanding of dashboard purpose",
+          "summary": "Dashboard summary",
+          "rows": "Description of rows and panels"
+        }
       }
     }
   }
 }
 ```
 
-### Step 6: Self-Validation
+### Step 8: Self-Validation
 
-After generating files, validate:
+After generating files, validate them:
 
-1. **Coordinates validation**:
-   - All coordinates are within image bounds (0 ≤ x, x+width ≤ image_width)
-   - All coordinates are within image bounds (0 ≤ y, y+height ≤ image_height)
-   - No negative values
-   - Panel sizes are reasonable (width > 50, height > 50)
-   - No overlapping panels (warn if detected)
-
-2. **Structure validation**:
-   - All panel IDs in rows exist in coordinates
-   - Row IDs follow pattern S1, S2, S3...
-   - Panel IDs follow pattern S{n}-{pos}-{name}
-   - At least one row exists
-   - At least one panel exists
-
-3. **Completeness check**:
-   - All three files generated successfully
-   - All required fields present
-   - YAML/JSON is valid and parseable
-
-4. **Visual verification prompt**:
-   - Show summary of panels detected
-   - Show image dimensions
-   - Recommend: "Visually verify coordinates by overlaying them on the image"
-
-### Step 7: Output Summary
-
-Provide clear summary:
+**1. Coordinate Bounds Check:**
 ```
-✓ Analysis complete for: <dashboard_name>
-  Image: <width>x<height> pixels
-  Panels detected: <count>
-  Rows detected: <count>
+For each panel:
+  ✓ 0 ≤ x < image_width
+  ✓ 0 ≤ y < image_height
+  ✓ x + width ≤ image_width
+  ✓ y + height ≤ image_height
+  ✓ width > 50, height > 50
+```
+
+**2. Structure Check:**
+```
+✓ All panel IDs in rows exist in coordinates
+✓ Row IDs follow pattern: S1, S2, S3...
+✓ Panel IDs follow pattern: S{n}-{pos}-{name}
+✓ No duplicate panel IDs
+```
+
+**3. Completeness:**
+```
+✓ All visible panels accounted for
+✓ All three files generated
+✓ Required fields present
+```
+
+Report any issues found during validation.
+
+### Step 9: Write Files to Disk
+
+Use the Write tool to create each file:
+- `config/dashboards/<dashboard-id>/coordinates.yaml`
+- `config/dashboards/<dashboard-id>/static_pack.yaml`
+- `config/dashboards/<dashboard-id>/run_pack.yaml`
+
+Create the directory first if it doesn't exist.
+
+### Step 10: Provide Summary
+
+Show clear summary:
+
+```
+✅ Dashboard Analysis Complete
+
+Dashboard: <name>
+Dashboard ID: <id>
+Image: <width>x<height> pixels
+Panels detected: <count>
+Rows detected: <count>
 
 Generated files:
   1. config/dashboards/<id>/coordinates.yaml
@@ -209,91 +277,68 @@ Generated files:
   3. config/dashboards/<id>/run_pack.yaml
 
 Validation results:
-  ✓ Coordinates within bounds
+  ✓ All coordinates within bounds
   ✓ No negative values
   ✓ Structure is valid
-  ⚠ Recommend visual verification
+  [any warnings]
 
 Panel summary:
-  - S1-L-write: [title] (x,y,w,h)
-  - S1-R-write: [title] (x,y,w,h)
+  S1-L-write: <title> (x, y, w×h)
+  S1-R-write: <title> (x, y, w×h)
+  ...
+
+Row summary:
+  S1: <title> - <panel_count> panels
+  S2: <title> - <panel_count> panels
   ...
 
 Next steps:
   1. Review generated files
-  2. Visually verify coordinates (optional)
-  3. Use for risk analysis: <example command>
+  2. Optionally validate: python -m src.utils.validate_dashboard config/dashboards/<id>
+  3. Use for risk analysis
 ```
 
-## Self-Testing Capabilities
+## Important Notes
 
-The skill includes validation for:
+- Measure coordinates carefully - accuracy matters for downstream use
+- Include ALL visible panels, even small ones
+- Panel IDs should be systematic and meaningful
+- Analysis objectives should be specific to what you observe
+- When in doubt about coordinates, be conservative (slightly larger is better than clipping content)
+- Document any assumptions or uncertainties in comments
 
-### 1. Coordinate Accuracy
-- Bounds checking (within image dimensions)
-- No negative values
-- Reasonable panel sizes (not too small)
-- Overlap detection
+## Common Dashboard Patterns
 
-### 2. Structural Validity
-- YAML/JSON syntax correctness
-- Required fields present
-- ID pattern consistency
-- Cross-reference integrity (all panel IDs exist)
-
-### 3. Dimension Flexibility
-- NO hardcoded dimensions
-- Works with any image size
-- Coordinates are absolute pixels (not percentages)
-- Validation adapts to actual image dimensions
-
-### 4. Visual Verification Helper
-After generation, optionally create a visual verification image showing:
-- Original screenshot with bounding boxes overlaid
-- Panel IDs labeled on each box
-- Saved as: `config/dashboards/<id>/verification.png`
-
-## Handling Edge Cases
-
-1. **Overlapping panels**: Warn user, suggest manual review
-2. **Missing panel titles**: Use generic descriptions, mark for review
-3. **Unusual layouts**: Still extract structure, add notes
-4. **Very small panels**: Warn if width or height < 50px
-5. **Out of bounds**: Error if coordinates extend beyond image
-
-## Usage in Claude Shell
-
-User can invoke this skill by saying:
-
+**2x2 Grid (Row 1):**
 ```
-Analyze dashboard screenshots/abase-risk-anal-11041203.png
+S1-L-top, S1-R-top
+S1-L-bottom, S1-R-bottom
 ```
 
-Or:
-
+**Side-by-side (Row 2):**
 ```
-Use dashboard-analyzer skill on screenshots/my-dashboard.png
-```
-
-Or:
-
-```
-Generate dashboard config for screenshots/dashboard.png with name "My Monitoring Dashboard"
+S2-L-panel, S2-R-panel
 ```
 
-## Implementation Notes
+**3-panel with full-width bottom:**
+```
+S3-L-panel, S3-R-panel
+S3-L2-fullwidth
+```
 
-- Use Claude Vision API (claude-3-5-sonnet-20241022) for image analysis
-- Requires ANTHROPIC_API_KEY environment variable
-- All coordinates in pixels (not normalized)
-- Supports any image dimensions (tested: 1920x1460, 1280x720, etc.)
-- Output follows existing config format for compatibility
+## Edge Cases
+
+- **Overlapping panels**: Measure to actual visible boundaries, note in comments
+- **Nested panels**: Treat as single panel with outer boundary
+- **Very small panels**: Include if > 50x50px, note if smaller
+- **Partial panels**: Include only if majority is visible
+- **Dashboard header**: Exclude from panel coordinates
 
 ## Validation Command
 
-After generation, user can validate with:
+User can validate generated files with:
 ```bash
-python -m src.utils.validate_dashboard config/dashboards/<id>
+python -m src.utils.validate_dashboard config/dashboards/<dashboard-id>
 ```
 
-(Note: Create this validation utility if it doesn't exist)
+This checks syntax, bounds, structure, and cross-references.
