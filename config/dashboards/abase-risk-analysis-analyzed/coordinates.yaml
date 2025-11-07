@@ -6,70 +6,70 @@ image_dimensions:
   height: 1460
 
 note: |
-  These coordinates were extracted through visual analysis of screenshots/abase-risk-anal-11041203.png.
+  These coordinates were measured by carefully examining panel boundaries in screenshots/abase-risk-anal-11041203.png.
   Actual dimensions obtained using PIL: 1920x1460 pixels.
-  Measured with ±5 pixel accuracy target by examining the image directly.
+  Coordinates trace the visible panel borders including titles and legends.
 
 panels:
   S1-L-read:
-    # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Global Read)
-    x: 30
-    y: 76
-    width: 615
-    height: 168
+    # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-left, Global Read)
+    x: 28
+    y: 95
+    width: 625
+    height: 148
 
   S1-R-read:
-    # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Read per DC)
-    x: 655
-    y: 76
-    width: 630
-    height: 168
+    # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Top-right, Read per DC)
+    x: 665
+    y: 95
+    width: 625
+    height: 148
 
   S1-L-write:
-    # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Global Write)
-    x: 30
-    y: 250
-    width: 615
-    height: 153
+    # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-left, Global Write)
+    x: 28
+    y: 255
+    width: 625
+    height: 148
 
   S1-R-write:
-    # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Write per DC)
-    x: 655
-    y: 250
-    width: 630
-    height: 153
+    # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Bottom-right, Write per DC)
+    x: 665
+    y: 255
+    width: 625
+    height: 148
 
   S2-L-disk:
-    # Disk Usage w/ top 3 sub tables - Storage monitoring from table perspective
-    x: 30
-    y: 592
-    width: 615
-    height: 185
+    # Disk Usage w/ top 3 sub tables (Left panel in row 2)
+    x: 28
+    y: 416
+    width: 625
+    height: 175
 
   S2-R-partition:
-    # Storage Capacity (Partition Perspective) Max - Partition-level capacity
-    x: 655
-    y: 592
-    width: 630
-    height: 185
+    # Storage Capacity (Partition Perspective) Max (Right panel in row 2)
+    x: 665
+    y: 416
+    width: 625
+    height: 175
 
   S3-L-qps_vs_quota:
-    # 分片QPS vs 分片QPS Quota - Traffic vs budget alignment
-    x: 30
-    y: 780
-    width: 615
-    height: 360
+    # 分片QPS vs 分片QPS Quota (Top-left in row 3)
+    x: 28
+    y: 604
+    width: 625
+    height: 179
 
   S3-R-hotkey:
-    # 热key RU top3 - Hotspot detection for top 3 hot keys
-    x: 655
-    y: 780
-    width: 630
-    height: 360
+    # 热key RU top3 (Top-right in row 3)
+    x: 665
+    y: 604
+    width: 625
+    height: 179
 
   S3-L2-value_size:
-    # 写 Single Value Size per DC - Object size characteristics across DCs
-    x: 30
-    y: 1142
-    width: 1255
-    height: 140
+    # 写 Single Value Size per DC (Bottom full-width in row 3)
+    x: 28
+    y: 795
+    width: 1262
+    height: 115
