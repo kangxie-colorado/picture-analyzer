@@ -3,13 +3,6 @@
 ## Core Principles
 
 ### 1. Minimize LLM Dependencies
-**Aim: Build standalone tools that don't require AI API calls for core functionality**
-
-- **Coordinate-based cropping** (`src/core/coordinate_cropper.py`): Uses pre-defined pixel coordinates, no LLM required
-- **Vision-based cropping** (`src/core/vision_cropper.py`): Optional LLM for adaptive detection
-- **One-time setup**: Run LLM analysis once to generate coordinates, then reuse forever
-
-**Philosophy**: LLMs are powerful but expensive and slow. For production workloads with consistent layouts, pre-computed coordinates are faster, cheaper, and more reliable.
 
 ### 2. Maximize Reusability
 **Aim: Create modular components that can be mixed and matched**
@@ -22,21 +15,6 @@
 **Philosophy**: Write once, use everywhere. The same cropping logic powers both the API and CLI tools.
 
 ### 3. Maintain Organization
-**Aim: Keep codebase navigable and professional**
-
-```
-picture-analyzer/
-├── src/                    # All source code
-│   ├── core/              # Core business logic
-│   ├── api/               # REST API
-│   └── cli/               # Command-line tools
-├── config/                # Configuration files
-│   └── dashboards/        # Dashboard definitions
-├── docs/                  # Documentation
-├── screenshots/           # Input data
-├── outputs/              # Generated outputs
-└── [entry points]         # Simple launchers
-```
 
 **Philosophy**: Logical grouping makes code easy to find, understand, and modify.
 
@@ -71,23 +49,12 @@ Entry Points (crop-fast, run-api)
 #### `src/core/`
 **Purpose**: Core business logic with zero external dependencies (except libs)
 
-- `layout.py` (174 lines): Dashboard structure parsing
-- `image_ops.py` (59 lines): Image manipulation primitives
-- `coordinate_cropper.py` (103 lines): Fast coordinate-based cropping
-- `vision_cropper.py` (228 lines): AI-powered adaptive cropping
-
 #### `src/api/`
 **Purpose**: RESTful HTTP interface
 
-- `app.py` (39 lines): Flask app initialization
-- `routes.py` (298 lines): HTTP endpoint handlers
-- `utils.py` (32 lines): Request/response helpers
 
 #### `src/cli/`
 **Purpose**: Command-line interfaces
-
-- `crop_fast.py` (165 lines): Fast cropping CLI
-- Additional tools as needed
 
 #### `config/dashboards/`
 **Purpose**: Dashboard definitions (not code)
