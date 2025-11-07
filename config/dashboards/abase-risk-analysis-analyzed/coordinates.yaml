@@ -15,61 +15,61 @@ panels:
     # 读总计 - Abase capcut_web_coordination 读RU配额指标对比上限 (Green rectangle, top-left)
     x: 40
     y: 83
-    width: 597
+    width: 598
     height: 157
 
   S1-R-read:
     # 读/DC - Abase capcut_web_coordination 读RU配额指标对比上限 (Magenta rectangle, top-right)
-    x: 647
+    x: 645
     y: 83
-    width: 605
+    width: 607
     height: 157
 
   S1-L-write:
     # 写总计 - Abase capcut_web_coordination 写RU配额指标对比上限 (Magenta rectangle, middle-left)
     x: 40
     y: 246
-    width: 597
+    width: 598
     height: 145
 
   S1-R-write:
     # 写/DC - Abase capcut_web_coordination 写RU配额指标对比上限 (Cyan rectangle, middle-right)
-    x: 647
+    x: 645
     y: 246
-    width: 605
+    width: 607
     height: 145
 
   S2-L-disk:
     # Disk Usage w/ top 3 sub tables (Red rectangle, row 3 left)
     x: 40
-    y: 414
-    width: 597
-    height: 175
+    y: 397
+    width: 598
+    height: 192
 
   S2-R-partition:
     # Storage Capacity (Partition Perspective) Max (Yellow rectangle, row 3 right)
-    x: 647
-    y: 414
-    width: 605
-    height: 175
+    x: 645
+    y: 397
+    width: 607
+    height: 192
 
   S3-L-qps_vs_quota:
     # 分片QPS vs 分片QPS Quota (Blue rectangle, row 4 left)
     x: 40
-    y: 612
-    width: 597
-    height: 148
+    y: 595
+    width: 598
+    height: 165
 
   S3-R-hotkey:
     # 热key RU top3 (Orange rectangle, row 4 right)
-    x: 647
-    y: 612
-    width: 605
-    height: 148
+    x: 645
+    y: 595
+    width: 607
+    height: 165
 
   S3-L2-value_size:
     # 写 Single Value Size per DC (Green rectangle, row 5 full-width)
     x: 40
     y: 766
-    width: 597
+    width: 598
     height: 158
