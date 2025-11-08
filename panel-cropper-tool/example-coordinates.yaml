@@ -1,0 +1,28 @@
+dashboard: example-dashboard
+version: '1.0'
+description: Example coordinate configuration
+image_dimensions:
+  width: 1920
+  height: 1080
+
+panels:
+  panel-1:
+    # Top-left panel
+    x: 10
+    y: 100
+    width: 800
+    height: 400
+
+  panel-2:
+    # Top-right panel
+    x: 820
+    y: 100
+    width: 800
+    height: 400
+
+  panel-3:
+    # Bottom panel (full-width)
+    x: 10
+    y: 520
+    width: 1610
+    height: 500
